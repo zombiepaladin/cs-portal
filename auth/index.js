@@ -24,10 +24,7 @@ app.get('/auth/ticket', ticket);
 
 // login required middleware
 app.loginRequired = (req, res, next) => {
-  if(/\/auth\//.test(req.url)) {
-    console.log("auth method");
-    return next();
-  }
+  if(/\/auth\//.test(req.url)) return next();
   if(!req.session.user) res.redirect('/auth/login');
   else next();
 };
