@@ -3,7 +3,7 @@
 // The serviceHost (our server) and casHost (the CAS server)
 // hostnames, we nee to build urls.  Since we pass our serviceHost
 // as a url component in the search string, we need to url-encode it.
-var serviceHost = encodeURIComponent('http://localhost:3000/auth/');
+var serviceHost = encodeURIComponent('https://edbb1d3eff3a.ngrok.io/auth/');
 var casHost = 'https://signin.k-state.edu/WebISO/';
 
 // Requires
