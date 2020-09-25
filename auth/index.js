@@ -1,16 +1,18 @@
 /** CAS authentication express subapp */
 
-// The serviceHost (our server) and casHost (the CAS server)
-// hostnames, we nee to build urls.  Since we pass our serviceHost
-// as a url component in the search string, we need to url-encode it.
-var serviceHost = encodeURIComponent('https://edbb1d3eff3a.ngrok.io/auth/');
-var casHost = 'https://signin.k-state.edu/WebISO/';
-
 // Requires
 const https = require('https');
 const express = require('express');
+const process = require('process');
+const {findOrCreateUser} = require('./user-functions');
 
-// The Express app
+// The serviceHost (our server) and casHost (the CAS server)
+// hostnames, we nee to build urls.  Since we pass our serviceHost
+// as a url component in the search string, we need to url-encode it.
+var serviceHost = encodeURIComponent(process.env.AUTH_SERVICE_HOST);
+var casHost = process.env.AUTH_CAS_HOST;
+
+// The Express subapp
 var app = express();
 
 // login route
@@ -24,9 +26,13 @@ app.get('/auth/ticket', ticket);
 
 // login required middleware
 app.loginRequired = (req, res, next) => {
-  if(/\/auth\//.test(req.url)) return next();
-  if(!req.session.user) res.redirect('/auth/login');
-  else next();
+  console.log(req.url);
+  // Allow routes starting with /auth/ through
+  if(/$\/auth\//.test(req.url)) return next();
+  // If no user is set on the session, redirect to the login url
+  if(!req.session.user) {console.log('no user'); res.redirect('/auth/login');}
+  // Otherwise, allow the request to move forward
+  else {console.log("in"); next();}
 };
 
 module.exports = app;
@@ -75,6 +81,7 @@ function ticket(req, res) {
     // Once it's collected, we want to see if
     // it contains a success or failure message
     response.on('end', function(){
+      console.log(body);
       // The contents are XML, and we can look
       // for a <cas:user>username</cas:user>
       // element if our user logged in successfully
@@ -83,8 +90,11 @@ function ticket(req, res) {
         // if we have a match, the user logged in through CAS;
         // Find the user and create a session
         var eid = match[1];
+console.log('eid:', eid);
+console.log(match);
         var db = req.app.get('db');
-        db.users.findOne({eid: eid}).then(user => {
+        findOrCreateUser(db, eid).then(user => {
+console.log("user:", user);
           req.session.user = user;
           res.redirect('/');
         }).catch(err => {

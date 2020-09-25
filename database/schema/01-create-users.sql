@@ -1,6 +1,5 @@
 CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  eid TEXT UNIQUE,
+  eid TEXT PRIMARY KEY,
   first TEXT,
   last TEXT
 );

@@ -4,6 +4,7 @@
   "description": "The KSU CS Department Student Portal",
   "main": "server.js",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "massive": "^6.6.0"

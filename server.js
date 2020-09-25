@@ -1,11 +1,15 @@
-// Constants
-const PORT = 3000;
+// Load .env file into environment
+require('dotenv').config();
 
 // Requires
+const process = require('process');
 const express = require('express');
 const massive = require('massive');
 const session = require('express-session');
 const auth = require('./auth');
+
+// Constants
+const PORT = process.env.PORT;
 
 (async () => {
 
@@ -14,11 +18,11 @@ const auth = require('./auth');
 
   // Set up the database connection
   const db = await massive({
-    host: '127.0.0.1',
-    port: 5432,
-    database: 'csportal',
-    user: 'csportal_admin',
-    password: 'insecure',
+    host: process.env.DATABASE_HOST,
+    port: process.env.DATABASE_PORT,
+    database: process.env.DATABASE_NAME,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
     scripts: '/database/queries'
   });
   app.set('db', db);
@@ -35,14 +39,14 @@ const auth = require('./auth');
   // except the auth routes
   app.use(auth);
   app.use(auth.loginRequired);
-
-  // Set up the peer reviews subapp
-  app.use(require('./peer-reviews'));
+  
+  // Set up any subapps!
+  //app.use(require('./peer-reviews'));
 
   console.log(db.listTables());
 
   app.get('/', async (req, res) => {
-    res.redirect('/peer-reviews/todo');
+    res.send("Welcome!")
   });
 
 
